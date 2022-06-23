@@ -12,7 +12,6 @@
       :height="375"
       :useArrow="{ enabled: true }"
       :usePagination="{ enabled: true }">
-        <template #container-end>HI</template>
         <!-- <slider-slide><img src="../assets/images/skyblue.jpg" alt=""></slider-slide> -->
         <slider-slide v-for="(v, i) in data" :key="i">
           <img :src="v.download_url" alt="">

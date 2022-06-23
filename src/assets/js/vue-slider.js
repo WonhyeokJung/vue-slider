@@ -55,6 +55,10 @@ const Slider = {
     transitionSpeed: {
       type: Number,
       default: 700
+    },
+    loop: {
+      type: Boolean,
+      default: true
     }
   },
   setup (props, _ref) {
@@ -94,6 +98,13 @@ const Slider = {
 
       return { slides }
     }
+
+    function renderSlides (slides) {
+      if (props.loop === true) {
+        createLoop(slides)
+      }
+      return slides
+    }
     return () => {
       const { slides } = getSlides(slots)
       console.log(slides)
@@ -105,7 +116,7 @@ const Slider = {
         slots['container-start'] && slots['container-start'](),
         h('div', { ref: sliderWrapperClass.value, class: [sliderWrapperClass.value] }, [
           // 슬롯 순서대로 정의됨. slots.default가 있는지 확인하고 그 다음에 default에 작성한 내용을 Rendering(slotProps 전달)
-          slots.default && slots.default(),
+          renderSlides(slides), // slots.default && slots.default()
           props.useArrow.enabled ? [h('div', { class: ['slider-arrow__prev slider-arrow-horizontal__prev'] }), h('div', { class: ['slider-arrow__next slider-arrow-horizontal__next'] })] : '',
           props.usePagination.enabled ? [h('div', { class: ['slider-pagination'] })] : ''
         ]),
