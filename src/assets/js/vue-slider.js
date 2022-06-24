@@ -1,4 +1,5 @@
 import { h, onMounted, ref } from 'vue'
+import { createLoop } from './loop'
 
 const Slider = {
   name: 'Slider',
