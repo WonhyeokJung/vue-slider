@@ -1,5 +1,6 @@
 import { h, onMounted, ref } from 'vue'
 import { createLoop } from './loop'
+import { mountSlider } from './mount-slider'
 
 const Slider = {
   name: 'Slider',
@@ -65,37 +66,6 @@ const Slider = {
   setup (props, { slots }) {
     const sliderClass = ref('slider')
     const sliderWrapperClass = ref('slider-wrapper')
-    const translate = ref(-100)
-    const curIdx = ref(1)
-    onMounted(() => {
-      document.querySelector('.slider-arrow__next').addEventListener('click', () => nextSlide(Slider))
-      document.querySelector('.slider-arrow__prev').addEventListener('click', () => prevSlide(Slider))
-      function prevSlide (slider) {
-        if (translate.value + 100 > 0) return
-        const speed = 300
-        const tags = {
-          sliderWrapper: document.querySelector('.slider-wrapper')
-        }
-        translate.value += 100
-        curIdx.value -= 1
-        tags.sliderWrapper.style.transitionDuration = `${speed}ms`
-        tags.sliderWrapper.style.transform = `translate3d(${translate.value}%, 0, 0)`
-      }
-      function nextSlide (slider) {
-        if (translate.value - 100 < -600) return
-        const speed = 300
-        const tags = {
-          sliderWrapper: document.querySelector('.slider-wrapper')
-        }
-        translate.value -= 100
-        curIdx.value += 1
-
-        tags.sliderWrapper.style.transitionDuration = `${speed}ms`
-        tags.sliderWrapper.style.transform = `translate3d(${translate.value}%, 0, 0)`
-      }
-      nextSlide()
-      prevSlide()
-    })
 
     function getSlides (slots) {
       if (slots === undefined) return
@@ -105,7 +75,7 @@ const Slider = {
         if (!Array.isArray(vnodes)) return
 
         vnodes.forEach((vnode) => {
-          // children이 있으며 & symbol type 인지 체크
+          // children이 있으며 & symbol type(유일성 체크) 인지 체크
           if (typeof vnode.type === 'symbol' && vnode.children) {
             pushSlides(vnode.children)
           } else if (vnode.type && vnode.type.name === 'SliderSlide') {
@@ -128,8 +98,14 @@ const Slider = {
       }
       return slides
     }
+
+    onMounted(() => {
+      mountSlider(props)
+    })
+
     return () => {
       const { slides } = getSlides(slots)
+      console.log(slots)
       return h(props.tag, {
         ref: sliderClass.value,
         class: [sliderClass.value === 'slider' ? sliderClass.value : (sliderClass.value, 'slider')],
@@ -162,7 +138,6 @@ const SliderSlide = {
     } = context
     const slideClass = ref('slider-slide')
     return () => {
-      // return h('div', {}, h('img'))
       return h(props.tag, {
         class: [slideClass.value]
         // 외부 컴포넌트 렌더링
