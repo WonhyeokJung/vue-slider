@@ -53,3 +53,8 @@ export default {
   }
 }
 </script>
+<style>
+  [class^='slider-arrow'] {
+    color: black;
+  }
+</style>
