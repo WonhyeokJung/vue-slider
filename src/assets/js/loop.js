@@ -1,6 +1,6 @@
 import { h } from 'vue'
 
-function createLoop (vnode) {
+function createLoop(vnode) {
   if (vnode.length === 0 || vnode === null || vnode === undefined) return
   const slides = vnode.map((child, index) => {
     if (!child.props) child.props = {}
