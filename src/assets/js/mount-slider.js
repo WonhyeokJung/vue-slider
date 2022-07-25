@@ -1,4 +1,5 @@
 import { autoplay } from './autoplay';
+import { addEvent, eventsEmitter } from './event';
 
 export function mountSlider(props) {
   const state = Object.assign({ ...props }, {
@@ -19,141 +20,53 @@ export function mountSlider(props) {
       pageNumber: document.querySelector('.slider-page-number')
     },
   })
+  if (state.direction === 'vertical') state.tags.sliderWrapper.classList.add('vertical');
+  else state.tags.sliderWrapper.classList.add('horizontal');
 
-  console.log(state)
-  document.querySelector('.slider-arrow__next').addEventListener('click', () => nextSlide(props))
-  document.querySelector('.slider-arrow__prev').addEventListener('click', () => prevSlide(props))
-  function prevSlide(props) {
-    if (!props.loop && state.translate + 100 > 0) return
+  function prevSlide(state) {
+    if (!state.loop && state.translate + 100 > 0) return
     state.translate += 100
     state.curIdx -= 1
-    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`
-    state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`
+    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`;
+    state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`;
   }
-  function nextSlide(props) {
-    if (!props.loop && state.translate < -100 * (state.tags.sliderWrapper.children.length - 2)) return
-    state.translate -= 100
-    state.curIdx += 1
+  function nextSlide(state) {
+    if (!state.loop && state.translate < -100 * (state.tags.sliderWrapper.children.length - 2)) return;
+    state.translate -= 100;
+    state.curIdx += 1;
 
-    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`
-    state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`
+    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`;
+    state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`;
   }
 
-  nextSlide(state)
-  prevSlide(state)
-  autoplay(state)
+  function arrow(state) {
+    const {
+      on,
+      // off,
+      // trigger
+    } = eventsEmitter;
+
+    function onPrevClick() {
+      console.log(state.moveEventsData.transitionEnd)
+      if (!state.moveEventsData.transitionEnd) return;
+      state.moveEventsData.transitionEnd = false;
+      return prevSlide(state);
+    }
+    function onNextClick() {
+      if (!state.moveEventsData.transitionEnd) return;
+      state.moveEventsData.transitionEnd = false;
+      return nextSlide(state);
+    }
+
+    on('init', () => {
+      addEvent(state.tags.prevArrow, 'click', onPrevClick(state));
+      addEvent(state.tags.prevArrow, 'click', onNextClick(state));
+    })
+  }
+
+  autoplay(state);
+  arrow(state);
+  // module화 대비
+  // autoplay.apply(state);
+  eventsEmitter.trigger('init');
 }
-
-// function autoplay(props) {
-//   function start() {
-//     if (autoplay.running) return;
-//     on('runAutoplay', () => {
-//       run();
-//     })
-//     trigger('runAutoplay');
-//   }
-
-//   // remove eventListener
-//   function stop() {
-//     clearInterval(autoSlideControl);
-//     off('runAutoplay');
-//   }
-
-//   function onTouchStart() {
-//     if (params.autoplay.disableOnInteraction) {
-//       return stop();
-//     }
-//     pause();
-//   }
-
-//   function onTouchEnd() {
-//     run();
-//   }
-
-// function onPointerEnter(e) {
-//   if (e.pointerType !== 'mouse') return;
-//   moveEventsData.transitionEnd = false;
-//   if (params.autoplay.disableOnInteraction) {
-//     return stop();
-//   }
-//   pause();
-// }
-
-// function onPointerLeave(e) {
-//   if (e.pointerType !== 'mouse') return;
-//   // $el.removeEventListener('pointerenter', onPointerEnter);
-//   moveEventsData.transitionEnd = true;
-//   run();
-// }
-
-//   function onTransitionStart() {
-//     // delay가 빠른 경우 여기서 방지가 필요함.
-//     moveEventsData.transitionEnd = false;
-//   }
-
-//   function onTransitionEnd() {
-//     tags.sliderWrapper.style.transitionDuration = '0ms';
-//     if (translate === 0){
-//       translate = -100 * (tags.slides.length - 2);
-//       curIdx = slideLength;
-//       if (params.direction === 'vertical') {
-//         tags.sliderWrapper.style.transform = `translate3d(0, ${translate}%, 0)`;
-//       } else {
-//         tags.sliderWrapper.style.transform = `translate3d(${translate}%, 0, 0)`;
-//       }
-//     } else if (translate === -100 * (tags.slides.length -1)) {
-//       translate = -100;
-//       curidx = 1;
-//       if (params.direction === 'vertical') {
-//         tags.sliderWrapper.style.transform = `translate3d(0, ${translate}%, 0)`;
-//       } else {
-//         tags.sliderWrapper.style.transform = `translate3d(${translate}%, 0, 0)`;
-//       }
-//     }
-
-//     moveEventsData.transitionEnd = true;
-//   }
-
-//   // active 화면 체크
-//   function onVisibilityChange() {
-//     if (document.hidden && autoplay.running) {
-//       pause();
-//     } else {
-//       run();
-//     }
-//   }
-
-//   function attachTouchEvent() {
-//     addEvent($el, 'touchstart', onTouchStart);
-//     addEvent($el, 'touchend', onTouchEnd);
-//   }
-
-//   function attachMouseEvent() {
-//       addEvent($el, 'pointerenter', onPointerEnter);
-//       addEvent($el, 'pointerleave', onPointerLeave);
-//   }
-
-//   function attachTransitionEvent() {
-//     addEvent($el, 'transitionstart', onTransitionStart);
-//     addEvent($el, 'transitionend', onTransitionEnd);
-//   }
-
-//   function detachTransitionEvent() {
-//     removeEvent($el, 'transitionstart', onTransitionStart);
-//     removeEvent($el, 'transitionend', onTransitionEnd);
-//   }
-
-//   on('init', () => {
-//     if (params.autoplay.enabled) {
-//       addEvent(document, 'visibilitychange', onVisibilityChange);
-
-//       if (params.autoplay.pauseOnInteraction) {
-//         attachTouchEvent();
-//         attachMouseEvent();
-//         // attachTransitionEvent();
-//       }
-
-//       start();
-//     }
-//   })
-// }

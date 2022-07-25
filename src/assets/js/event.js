@@ -3,7 +3,6 @@ const eventsEmitter = {
   // 이벤트 등록
   on(events, handler, priority) {
     const self = eventsEmitter;
-    console.log(self)
     if (typeof handler !== 'function') return self;
     const method = priority ? 'unshift' : 'push';
     events.split(' ').forEach(event => {
@@ -58,6 +57,11 @@ const eventsEmitter = {
   }
 }
 
+/**
+ * @param { any } el the element
+ * @param { String } event The string
+ * @param { Function } handler event handler
+ */
 function addEvent(el, event, handler) {
   return el.addEventListener(event, handler)
 }

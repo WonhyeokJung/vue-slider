@@ -1,6 +1,8 @@
 import { addEvent, removeEvent, eventsEmitter } from './event';
 
 export function autoplay(state) {
+  // module 등록 후 apply(this값, ..args)로 호출했을 때 대비.
+  if (!state) state = this;
   // state에 autoplay 옵션 추가
   Object.assign(state, { autoplay: { ...state.autoplay, running: false, paused: true } })
   const {
@@ -90,7 +92,6 @@ export function autoplay(state) {
     }
     pause();
   }
-
   function onTouchEnd() {
     run();
   }
@@ -98,12 +99,9 @@ export function autoplay(state) {
   function onPointerEnter(e) {
     if (e.pointerType !== 'mouse') return;
     moveEventsData.transitionEnd = false;
-    if (autoplay.disableOnInteraction) {
-      return stop();
-    }
+    if (autoplay.disableOnInteraction) return stop();
     pause();
   }
-
   function onPointerLeave(e) {
     if (e.pointerType !== 'mouse') return;
     // $el.removeEventListener('pointerenter', onPointerEnter);
@@ -157,12 +155,14 @@ export function autoplay(state) {
     removeEvent(tags.$el, 'transitionend', onTransitionEnd);
   }
 
-  if (autoplay.enabled) {
-    addEvent(document, 'visibilitychange', onVisibilityChange);
-    if (autoplay.pauseOnInteraction) {
-      attachTouchEvent();
-      attachMouseEvent();
+  on('init', () => {
+    if (autoplay.enabled) {
+      addEvent(document, 'visibilitychange', onVisibilityChange);
+      if (autoplay.pauseOnInteraction) {
+        attachTouchEvent();
+        attachMouseEvent();
+      }
     }
-  }
-  start();
+    start();
+  });
 } // autoplay 끝
