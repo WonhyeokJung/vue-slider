@@ -14,7 +14,7 @@
       :usePagination="{ enabled: true, clickable: true }">
         <!-- <slider-slide><img src="../assets/images/skyblue.jpg" alt=""></slider-slide> -->
         <slider-slide v-for="(v, i) in data" :key="i">
-          <img :src="v.download_url" alt="">
+          <img :src="v.download_url" alt="loading..">
         </slider-slide>
     </slider>
     <!-- <slider-slide></slider-slide> -->
@@ -33,10 +33,10 @@ export default {
     Slider,
     SliderSlide
   },
-  setup () {
+  setup() {
     const data = ref([])
-    const images = function () {
-      fetch('https://picsum.photos/v2/list?page=28&limit=5', { method: 'GET' })
+    const images = async function () {
+      await fetch('https://picsum.photos/v2/list?page=28&limit=5', { method: 'GET' })
         .then((r) => r.json())
         .then((d) => { data.value = d })
     }
@@ -46,7 +46,7 @@ export default {
       images
     }
   },
-  data () {
+  data() {
     return {
       abc: this.$refs.slots
     }

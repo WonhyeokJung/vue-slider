@@ -1,4 +1,4 @@
-import { h, onMounted, ref } from 'vue'
+import { h, onUpdated, ref } from 'vue'
 import { createLoop } from './loop'
 import { mountSlider } from './mount-slider'
 
@@ -24,9 +24,11 @@ const Slider = {
       type: Object,
       default: {
         enabled: true,
-        delay: 2000,
         toForward: true,
-        pauseOnInteraction: true
+        delay: 3300,
+        waitForTransition: true,
+        disableOnInteraction: false,
+        pauseOnInteraction: true,
       }
     },
     usePagination: {
@@ -63,14 +65,14 @@ const Slider = {
       default: true
     }
   },
-  setup (props, { slots }) {
+  setup(props, { slots }) {
     const sliderClass = ref('slider')
     const sliderWrapperClass = ref('slider-wrapper')
 
-    function getSlides (slots) {
+    function getSlides(slots) {
       if (slots === undefined) return
       const slides = []
-      function pushSlides (vnodes) {
+      function pushSlides(vnodes) {
         // iterable check
         if (!Array.isArray(vnodes)) return
 
@@ -92,20 +94,18 @@ const Slider = {
       return { slides }
     }
 
-    function renderSlides (slides) {
+    function renderSlides(slides) {
       if (props.loop === true) {
         return createLoop(slides)
       }
       return slides
     }
 
-    onMounted(() => {
+    onUpdated(() => {
       mountSlider(props)
     })
-
     return () => {
       const { slides } = getSlides(slots)
-      console.log(slots)
       return h(props.tag, {
         ref: sliderClass.value,
         class: [sliderClass.value === 'slider' ? sliderClass.value : (sliderClass.value, 'slider')],
@@ -132,7 +132,7 @@ const SliderSlide = {
       default: 'div'
     }
   },
-  setup (props, context) {
+  setup(props, context) {
     const {
       slots
     } = context
