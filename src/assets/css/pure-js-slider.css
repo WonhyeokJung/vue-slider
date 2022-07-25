@@ -61,6 +61,7 @@
   border-radius: 5px;
   /* image flickering 방지 */
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   /* height는 자동조절되므로 정렬 필요없음. */
 }
 
@@ -78,6 +79,7 @@
   height:100%;
   border-radius: 5px;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   image-rendering: -webkit-optimize-contrast;
   object-fit: cover;
 }
