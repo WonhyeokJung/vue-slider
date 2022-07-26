@@ -11,21 +11,21 @@
       :width="500"
       :height="375"
       :useArrow="{ enabled: true }"
-      :usePagination="{ enabled: true, clickable: true }">
-        <!-- <slider-slide><img src="../assets/images/skyblue.jpg" alt=""></slider-slide> -->
+      :usePagination="{ enabled: true, clickable: true }"
+      :loop="true">
+        <slider-slide><img src="../assets/images/skyblue.jpg" alt=""></slider-slide>
+        <slider-slide><img src="../assets/images/orange.jpg" alt=""></slider-slide>
         <slider-slide v-for="(v, i) in data" :key="i">
           <img :src="v.download_url" alt="loading..">
         </slider-slide>
     </slider>
-    <!-- <slider-slide></slider-slide> -->
-    {{ abc }}
   </div>
 </template>
 
 <script>
-import { Slider, SliderSlide } from '../assets/js/vue-slider.js'
-import { ref } from 'vue'
-import '../assets/css/pure-js-slider.css'
+import { Slider, SliderSlide } from '../assets/js/vue-slider.js';
+import { ref } from 'vue';
+import '../assets/css/pure-js-slider.css';
 // @ is an alias to /src
 export default {
   name: 'HomeView',
@@ -36,25 +36,23 @@ export default {
   setup() {
     const data = ref([])
     const images = async function () {
-      await fetch('https://picsum.photos/v2/list?page=28&limit=5', { method: 'GET' })
+      await fetch('https://picsum.photos/v2/list?page=49&limit=5', { method: 'GET' })
         .then((r) => r.json())
         .then((d) => { data.value = d })
     }
-    images()
     return {
       data,
-      images
+      images: images()
     }
   },
   data() {
     return {
-      abc: this.$refs.slots
     }
   }
 }
 </script>
 <style>
-  [class^='slider-arrow'] {
+  /* [class^='slider-arrow'] {
     color: black;
-  }
+  } */
 </style>

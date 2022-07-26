@@ -27,7 +27,6 @@ export function autoplay(state) {
     if (!state.loop && state.translate + 100 > 0) {
       state.translate = -100 * (state.tags.slides.length - 1);
       state.curIdx = state.tags.slides.length - 1;
-      console.log(state.curIdx)
     } else {
       state.translate += 100;
       state.curIdx -= 1;
@@ -62,7 +61,6 @@ export function autoplay(state) {
   function run() {
     if (autoplay.running) return;
     const delay = autoplay.delay;
-    console.log(autoplay)
     autoplay.running = true;
     autoplay.paused = false;
 
@@ -173,7 +171,7 @@ export function autoplay(state) {
         attachTouchEvent();
         attachMouseEvent();
       }
+      start();
     }
-    start();
   });
 } // autoplay 끝

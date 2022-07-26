@@ -1,6 +1,6 @@
 import { h, onMounted, onUpdated, ref } from 'vue'
 import { createLoop } from './modules/loop'
-import { updateSlider } from './update-slider'
+// import { updateSlider } from './update-slider'
 import { mountSlider } from './mount-slider'
 
 const Slider = {
@@ -28,7 +28,7 @@ const Slider = {
     autoplay: {
       type: Object,
       default: {
-        enabled: true,
+        enabled: false,
         toForward: false,
         delay: 3300,
         waitForTransition: true,
@@ -106,11 +106,12 @@ const Slider = {
       mountSlider(props)
     })
     onUpdated(() => {
-      updateSlider(props)
+      // updateSlider(props)
     })
     return () => {
-      const { slides } = getSlides(slots)
+      const { slides } = getSlides(slots);
       return h(props.tag, {
+        ref: 'slider',
         class: [props.sliderClass.value === 'slider' ? props.sliderClass.value : (props.sliderClass.value, 'slider')],
         style: [`width: ${props.width}px`, `height: ${props.height}px`]
       }, [

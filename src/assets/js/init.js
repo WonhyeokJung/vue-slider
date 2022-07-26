@@ -1,7 +1,8 @@
 import { autoplay } from './modules/autoplay';
 import { addEvent, eventsEmitter } from './utils/event';
+import { arrow } from './modules/arrow';
 
-export function updateSlider(props) {
+export function init(props) {
   const state = Object.assign({ ...props }, {
     translate: props.loop ? -100 : 0,
     curIdx: props.loop ? 1 : 0,
@@ -21,7 +22,6 @@ export function updateSlider(props) {
   })
   if (state.direction === 'vertical') state.tags.sliderWrapper.classList.add('vertical');
   else state.tags.sliderWrapper.classList.add('horizontal');
-
   function onTransitionStart() {
     if (state.loop) {
       state.moveEventsData.transitionEnd = false;
@@ -43,49 +43,6 @@ export function updateSlider(props) {
     }
 
     state.moveEventsData.transitionEnd = true;
-  }
-
-  function prevSlide(state) {
-    // transition이 작동안하므로 true 처리
-    if (!state.loop && state.translate + 100 > 0) return (state.moveEventsData.transitionEnd = true);
-    state.translate += 100
-    state.curIdx -= 1
-    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`;
-    state.direction === 'vertical' ? state.tags.sliderWrapper.style.transform = `translate3d(0, ${state.translate}%, 0)` : state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`;
-  }
-  function nextSlide(state) {
-    if (!state.loop && state.translate < -100 * (state.tags.sliderWrapper.children.length - 2)) return (state.moveEventsData.transitionEnd = true);
-    state.translate -= 100;
-    state.curIdx += 1;
-    console.log('working', state.translate, state.curIdx)
-    state.tags.sliderWrapper.style.transitionDuration = `${state.transitionSpeed}ms`;
-    state.direction === 'vertical' ? state.tags.sliderWrapper.style.transform = `translate3d(0, ${state.translate}%, 0)` : state.tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`;
-  }
-
-  function arrow(state) {
-    const {
-      moveEventsData,
-      tags
-    } = state;
-    const {
-      on,
-      // off,
-      // trigger
-    } = eventsEmitter;
-
-    function onPrevClick() {
-      if (!moveEventsData.transitionEnd) return;
-      return prevSlide(state);
-    }
-    function onNextClick() {
-      if (!moveEventsData.transitionEnd) return;
-      return nextSlide(state);
-    }
-
-    on('init', () => {
-      addEvent(tags.prevArrow, 'click', onPrevClick);
-      addEvent(tags.nextArrow, 'click', onNextClick);
-    })
   }
 
   eventsEmitter.on('init', () => {
