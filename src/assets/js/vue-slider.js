@@ -1,5 +1,6 @@
-import { h, onUpdated, ref } from 'vue'
-import { createLoop } from './loop'
+import { h, onMounted, onUpdated, ref } from 'vue'
+import { createLoop } from './modules/loop'
+import { updateSlider } from './update-slider'
 import { mountSlider } from './mount-slider'
 
 const Slider = {
@@ -8,6 +9,10 @@ const Slider = {
     init: {
       type: Boolean,
       default: true
+    },
+    sliderClass: {
+      type: String,
+      default: 'slider'
     },
     direction: {
       type: String,
@@ -24,7 +29,7 @@ const Slider = {
       type: Object,
       default: {
         enabled: true,
-        toForward: true,
+        toForward: false,
         delay: 3300,
         waitForTransition: true,
         disableOnInteraction: false,
@@ -62,13 +67,10 @@ const Slider = {
     },
     loop: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   setup(props, { slots }) {
-    const sliderClass = ref('slider')
-    const sliderWrapperClass = ref('slider-wrapper')
-
     function getSlides(slots) {
       if (slots === undefined) return
       const slides = []
@@ -100,24 +102,25 @@ const Slider = {
       }
       return slides
     }
-
-    onUpdated(() => {
+    onMounted(() => {
       mountSlider(props)
+    })
+    onUpdated(() => {
+      updateSlider(props)
     })
     return () => {
       const { slides } = getSlides(slots)
       return h(props.tag, {
-        ref: sliderClass.value,
-        class: [sliderClass.value === 'slider' ? sliderClass.value : (sliderClass.value, 'slider')],
+        class: [props.sliderClass.value === 'slider' ? props.sliderClass.value : (props.sliderClass.value, 'slider')],
         style: [`width: ${props.width}px`, `height: ${props.height}px`]
       }, [
         slots['container-start'] && slots['container-start'](),
-        h('div', { ref: sliderWrapperClass.value, class: [sliderWrapperClass.value] }, [
+        h('div', { ref: 'sliderWrapperClass', class: ['slider-wrapper'] }, [
           // 슬롯 순서대로 정의됨. slots.default가 있는지 확인하고 그 다음에 default에 작성한 내용을 Rendering(slotProps 전달)
           renderSlides(slides) // slots.default && slots.default()
         ]),
         slots['container-end'] && slots['container-end'](),
-        props.useArrow.enabled ? [h('div', { class: ['slider-arrow__prev slider-arrow-horizontal__prev'] }), h('div', { class: ['slider-arrow__next slider-arrow-horizontal__next'] })] : '',
+        props.useArrow.enabled ? [h('div', { class: ['slider-arrow__prev', props.direction === 'vertical' ? 'slider-arrow-vertical__prev' : 'slider-arrow-horizontal__prev'], innerHTML: '<div>&lt;</div>' }), h('div', { class: ['slider-arrow__next', props.direction === 'vertical' ? 'slider-arrow-vertical__next' : 'slider-arrow-horizontal__next'], innerHTML: '<div>&gt;</div>' })] : '',
         props.usePagination.enabled ? [h('div', { class: ['slider-pagination'] })] : ''
       ])
     }

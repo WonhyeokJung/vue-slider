@@ -1,6 +1,13 @@
 const eventsEmitter = {
   eventsListeners: {},
   // 이벤트 등록
+  /**
+   *
+   * @param {string} events event name
+   * @param {function} handler event handler
+   * @param {boolean} priority priority
+   * @returns object
+   */
   on(events, handler, priority) {
     const self = eventsEmitter;
     if (typeof handler !== 'function') return self;
@@ -60,7 +67,7 @@ const eventsEmitter = {
 /**
  * @param { any } el the element
  * @param { String } event The string
- * @param { Function } handler event handler
+ * @param { * } handler event handler
  */
 function addEvent(el, event, handler) {
   return el.addEventListener(event, handler)

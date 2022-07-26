@@ -1,4 +1,4 @@
-import { addEvent, removeEvent, eventsEmitter } from './event';
+import { addEvent, eventsEmitter } from '../utils/event';
 
 export function autoplay(state) {
   // module 등록 후 apply(this값, ..args)로 호출했을 때 대비.
@@ -11,6 +11,7 @@ export function autoplay(state) {
     transitionSpeed,
     tags,
     direction,
+    loop
   } = state;
   const {
     on,
@@ -22,10 +23,16 @@ export function autoplay(state) {
   function autoPrevSlide() {
     if (!moveEventsData.transitionEnd) return;
     moveEventsData.transitionEnd = false;
-    const speed = transitionSpeed;
-    state.translate += 100;
-    state.curIdx -= 1;
-    tags.sliderWrapper.style.transitionDuration = `${speed}ms`;
+    // if non-loop else loop
+    if (!state.loop && state.translate + 100 > 0) {
+      state.translate = -100 * (state.tags.slides.length - 1);
+      state.curIdx = state.tags.slides.length - 1;
+      console.log(state.curIdx)
+    } else {
+      state.translate += 100;
+      state.curIdx -= 1;
+    }
+    tags.sliderWrapper.style.transitionDuration = `${transitionSpeed}ms`;
     if (direction === 'vertical') {
       tags.sliderWrapper.style.transform = `translate3d(0, ${state.translate}%, 0)`;
     } else {
@@ -36,15 +43,19 @@ export function autoplay(state) {
   function autoNextSlide() {
     if (!moveEventsData.transitionEnd) return;
     moveEventsData.transitionEnd = false;
-    const speed = transitionSpeed;
-    state.translate -= 100;
-    state.curIdx += 1;
-    tags.sliderWrapper.style.transitionDuration = `${speed}ms`;
+    // if non-loop else loop
+    if (!loop && state.translate < -100 * (tags.sliderWrapper.children.length - 2)) {
+      state.translate = 0;
+      state.curIdx = 0;
+    } else {
+      state.translate -= 100;
+      state.curIdx += 1;
+    }
+    tags.sliderWrapper.style.transitionDuration = `${transitionSpeed}ms`;
     if (direction === 'vertical') {
       tags.sliderWrapper.style.transform = `translate3d(0, ${state.translate}%, 0)`;
     } else {
       tags.sliderWrapper.style.transform = `translate3d(${state.translate}%, 0, 0)`;
-      tags.sliderWrapper.style.webkitTransform = `translate3d(${state.translate}%, 0, 0)`;
     }
   }
 
@@ -55,12 +66,12 @@ export function autoplay(state) {
     autoplay.running = true;
     autoplay.paused = false;
 
-    attachTransitionEvent();
+    // attachTransitionEvent();
 
     if (autoplay.toForward) {
-      autoSlideControl = setInterval(autoNextSlide, delay)
+      autoSlideControl = setInterval(autoNextSlide, delay);
     } else {
-      autoSlideControl = setInterval(autoPrevSlide, delay)
+      autoSlideControl = setInterval(autoPrevSlide, delay);
     }
   }
 
@@ -69,7 +80,7 @@ export function autoplay(state) {
     autoplay.running = false;
     autoplay.paused = true;
 
-    detachTransitionEvent();
+    // detachTransitionEvent();
 
     if (autoSlideControl) clearInterval(autoSlideControl);
   }
@@ -88,7 +99,7 @@ export function autoplay(state) {
 
   function onTouchStart() {
     if (autoplay.disableOnInteraction) {
-      return stop();
+      stop();
     }
     pause();
   }
@@ -98,7 +109,7 @@ export function autoplay(state) {
 
   function onPointerEnter(e) {
     if (e.pointerType !== 'mouse') return;
-    moveEventsData.transitionEnd = false;
+    // moveEventsData.transitionEnd = false;
     if (autoplay.disableOnInteraction) return stop();
     pause();
   }
@@ -109,23 +120,23 @@ export function autoplay(state) {
     run();
   }
 
-  function onTransitionStart() {
-    moveEventsData.transitionEnd = false;
-  }
-  function onTransitionEnd() {
-    tags.sliderWrapper.style.transitionDuration = '0ms';
-    if (state.translate === 0) {
-      state.translate = -100 * (tags.slides.length - 2);
-      state.curIdx = tags.slides.length;
-      tags.sliderWrapper.style.transform = (direction === 'vertical') ? `translate3d(0, ${state.translate}%, 0)` : `translate3d(${state.translate}%, 0, 0)`;
-    } else if (state.translate === -100 * (tags.slides.length - 1)) {
-      state.translate = -100;
-      state.curidx = 1;
-      tags.sliderWrapper.style.transform = (direction === 'vertical') ? `translate3d(0, ${state.translate}%, 0)` : `translate3d(${state.translate}%, 0, 0)`;
-    }
+  // function onTransitionStart() {
+  //   moveEventsData.transitionEnd = false;
+  // }
+  // function onTransitionEnd() {
+  //   tags.sliderWrapper.style.transitionDuration = '0ms';
+  //   if (state.translate === 0) {
+  //     state.translate = -100 * (tags.slides.length - 2);
+  //     state.curIdx = tags.slides.length;
+  //     tags.sliderWrapper.style.transform = (direction === 'vertical') ? `translate3d(0, ${state.translate}%, 0)` : `translate3d(${state.translate}%, 0, 0)`;
+  //   } else if (state.translate === -100 * (tags.slides.length - 1)) {
+  //     state.translate = -100;
+  //     state.curidx = 1;
+  //     tags.sliderWrapper.style.transform = (direction === 'vertical') ? `translate3d(0, ${state.translate}%, 0)` : `translate3d(${state.translate}%, 0, 0)`;
+  //   }
 
-    moveEventsData.transitionEnd = true;
-  }
+  //   moveEventsData.transitionEnd = true;
+  // }
 
   function onVisibilityChange() {
     if (document.hidden && autoplay.running) {
@@ -145,15 +156,15 @@ export function autoplay(state) {
     addEvent(tags.$el, 'pointerleave', onPointerLeave);
   }
 
-  function attachTransitionEvent() {
-    addEvent(tags.$el, 'transitionstart', onTransitionStart);
-    addEvent(tags.$el, 'transitionend', onTransitionEnd);
-  }
+  // function attachTransitionEvent() {
+  //   addEvent(tags.$el, 'transitionstart', onTransitionStart);
+  //   addEvent(tags.$el, 'transitionend', onTransitionEnd);
+  // }
 
-  function detachTransitionEvent() {
-    removeEvent(tags.$el, 'transitionstart', onTransitionStart);
-    removeEvent(tags.$el, 'transitionend', onTransitionEnd);
-  }
+  // function detachTransitionEvent() {
+  //   removeEvent(tags.$el, 'transitionstart', onTransitionStart);
+  //   removeEvent(tags.$el, 'transitionend', onTransitionEnd);
+  // }
 
   on('init', () => {
     if (autoplay.enabled) {
